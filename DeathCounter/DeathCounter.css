@@ -1,0 +1,65 @@
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  background: transparent;
+  overflow: hidden;
+  font-family: Arial, sans-serif;
+}
+
+#counter-wrap {
+  display: inline-flex;
+  flex-direction: column;
+  align-items: center;
+  background: rgba(15, 15, 25, 0.88);
+  border-radius: 14px;
+  padding: 18px 32px;
+  gap: 4px;
+}
+
+#counter-icon {
+  font-size: 2rem;
+  line-height: 1;
+}
+
+#counter-value {
+  font-size: 4rem;
+  font-weight: 700;
+  color: #ffffff;
+  line-height: 1;
+}
+
+#counter-label {
+  font-size: 0.75rem;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: rgba(255, 255, 255, 0.45);
+}
+
+/* Bump animation on increment */
+@keyframes bump {
+  0%   { transform: scale(1);    }
+  40%  { transform: scale(1.35); }
+  100% { transform: scale(1);    }
+}
+
+/* Shake animation on decrement */
+@keyframes shake {
+  0%, 100% { transform: translateX(0);    }
+  25%       { transform: translateX(-6px); }
+  75%       { transform: translateX(6px);  }
+}
+
+#counter-value.bump {
+  animation: bump 0.35s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+#counter-value.shake {
+  animation: shake 0.3s ease-in-out;
+}
+
+/* Write custom CSS below. */

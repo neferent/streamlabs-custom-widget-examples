@@ -1,0 +1,123 @@
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+#hype-meter {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  width: 60px;
+  padding: 10px 0;
+  font-family: 'Arial Black', Arial, sans-serif;
+}
+
+#hype-label {
+  color: #fff;
+  font-size: 11px;
+  font-weight: 900;
+  letter-spacing: 2px;
+  text-shadow: 0 0 8px rgba(255, 255, 255, 0.8);
+  text-align: center;
+}
+
+#hype-track {
+  position: relative;
+  width: 28px;
+  height: 200px;
+  background: rgba(0, 0, 0, 0.6);
+  border-radius: 14px;
+  border: 2px solid rgba(255, 255, 255, 0.15);
+  overflow: hidden;
+}
+
+#hype-fill {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: 0%;
+  border-radius: 12px;
+  background: linear-gradient(
+    to top,
+    #1e90ff 0%,
+    #00cfff 40%,
+    #00ff88 65%,
+    #ffee00 80%,
+    #ff4400 100%
+  );
+  transition: height 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+}
+
+#hype-glow {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: 0%;
+  border-radius: 12px;
+  background: linear-gradient(
+    to top,
+    rgba(30, 144, 255, 0.3),
+    rgba(255, 68, 0, 0.3)
+  );
+  filter: blur(8px);
+  transition: height 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+  pointer-events: none;
+}
+
+#hype-icon {
+  font-size: 22px;
+  line-height: 1;
+  opacity: 0.3;
+  transition: opacity 0.4s, transform 0.3s;
+  transform: scale(0.8);
+}
+
+/* State classes applied by JS */
+
+#hype-meter.warm #hype-label {
+  color: #00ff88;
+  text-shadow: 0 0 10px rgba(0, 255, 136, 0.9);
+}
+
+#hype-meter.hot #hype-label {
+  color: #ffee00;
+  text-shadow: 0 0 12px rgba(255, 238, 0, 1);
+}
+
+#hype-meter.hype #hype-label {
+  color: #ff4400;
+  text-shadow: 0 0 16px rgba(255, 68, 0, 1);
+  animation: pulse-label 0.6s ease-in-out infinite alternate;
+}
+
+#hype-meter.hype #hype-track {
+  border-color: rgba(255, 68, 0, 0.7);
+  box-shadow: 0 0 20px rgba(255, 68, 0, 0.5);
+}
+
+#hype-meter.warm #hype-icon,
+#hype-meter.hot #hype-icon,
+#hype-meter.hype #hype-icon {
+  opacity: 1;
+}
+
+#hype-meter.warm #hype-icon { transform: scale(0.9); }
+#hype-meter.hot  #hype-icon { transform: scale(1); }
+#hype-meter.hype #hype-icon {
+  transform: scale(1.2);
+  animation: bounce-icon 0.5s ease-in-out infinite alternate;
+}
+
+@keyframes pulse-label {
+  from { text-shadow: 0 0 8px rgba(255, 68, 0, 0.7); }
+  to   { text-shadow: 0 0 20px rgba(255, 68, 0, 1), 0 0 40px rgba(255, 68, 0, 0.5); }
+}
+
+@keyframes bounce-icon {
+  from { transform: scale(1.1) translateY(0); }
+  to   { transform: scale(1.3) translateY(-3px); }
+}

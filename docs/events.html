@@ -1,0 +1,696 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Event Reference — Streamlabs Custom Widget Examples</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg:        #111827;
+      --surface:   #1f2937;
+      --surface2:  #0d1117;
+      --border:    #374151;
+      --text:      #f9fafb;
+      --muted:     #9ca3af;
+      --accent:    #f97316;
+      --radius:    10px;
+      --mono:      'JetBrains Mono', monospace;
+    }
+
+    body {
+      font-family: 'Inter', sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      line-height: 1.6;
+    }
+
+    a { color: var(--accent); text-decoration: none; }
+    a:hover { text-decoration: underline; }
+
+    /* ── Nav ── */
+    nav {
+      border-bottom: 1px solid var(--border);
+      padding: 14px 24px;
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      font-size: 0.875rem;
+    }
+
+    nav a { color: var(--muted); }
+    nav a:hover { color: var(--text); text-decoration: none; }
+    nav .sep { color: var(--border); }
+    nav .current { color: var(--text); font-weight: 600; }
+
+    /* ── Layout ── */
+    .page {
+      display: flex;
+      max-width: 1100px;
+      margin: 0 auto;
+      padding: 0 24px;
+      gap: 40px;
+    }
+
+    /* ── Sidebar ── */
+    .sidebar {
+      width: 200px;
+      flex-shrink: 0;
+      padding: 40px 0;
+      position: sticky;
+      top: 0;
+      height: 100vh;
+      overflow-y: auto;
+    }
+
+    .sidebar h3 {
+      font-size: 0.7rem;
+      font-weight: 700;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: var(--muted);
+      margin-bottom: 10px;
+    }
+
+    .sidebar ul {
+      list-style: none;
+      display: flex;
+      flex-direction: column;
+      gap: 2px;
+    }
+
+    .sidebar ul li a {
+      display: block;
+      padding: 5px 8px;
+      border-radius: 6px;
+      font-size: 0.875rem;
+      color: var(--muted);
+      transition: background 0.1s, color 0.1s;
+    }
+
+    .sidebar ul li a:hover {
+      background: var(--surface);
+      color: var(--text);
+      text-decoration: none;
+    }
+
+    .sidebar .group + .group { margin-top: 20px; }
+
+    /* ── Main content ── */
+    .content {
+      flex: 1;
+      min-width: 0;
+      padding: 40px 0 80px;
+    }
+
+    .content h1 {
+      font-size: 2rem;
+      font-weight: 700;
+      letter-spacing: -0.02em;
+      margin-bottom: 8px;
+    }
+
+    .content > .intro {
+      color: var(--muted);
+      font-size: 1rem;
+      margin-bottom: 48px;
+      max-width: 600px;
+    }
+
+    /* ── Event sections ── */
+    .event-section {
+      margin-bottom: 56px;
+      scroll-margin-top: 24px;
+    }
+
+    .event-header {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 16px;
+      padding-bottom: 12px;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .event-icon { font-size: 1.4rem; }
+
+    .event-title {
+      font-size: 1.2rem;
+      font-weight: 700;
+    }
+
+    .event-desc {
+      color: var(--muted);
+      font-size: 0.9rem;
+      margin-bottom: 16px;
+      line-height: 1.5;
+    }
+
+    /* ── Sub-type headers ── */
+    .subtype {
+      font-size: 0.8rem;
+      font-weight: 600;
+      color: var(--muted);
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      margin: 20px 0 8px;
+    }
+
+    /* ── Code blocks ── */
+    pre {
+      background: var(--surface2);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 16px 20px;
+      font-family: var(--mono);
+      font-size: 0.8rem;
+      line-height: 1.65;
+      overflow-x: auto;
+      color: #e2e8f0;
+      position: relative;
+    }
+
+    .copy-btn {
+      position: absolute;
+      top: 10px;
+      right: 10px;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      color: var(--muted);
+      font-family: var(--mono);
+      font-size: 0.72rem;
+      padding: 3px 8px;
+      border-radius: 5px;
+      cursor: pointer;
+      transition: color 0.15s, border-color 0.15s;
+    }
+    .copy-btn:hover { color: var(--text); border-color: var(--muted); }
+    .copy-btn.copied { color: #10b981; border-color: #10b981; }
+
+    /* Syntax highlighting */
+    .k { color: #93c5fd; } /* keyword / type string */
+    .s { color: #86efac; } /* string value */
+    .n { color: #fca5a5; } /* number */
+    .b { color: #fdba74; } /* boolean */
+    .c { color: #6b7280; font-style: italic; } /* comment */
+    .p { color: #e2e8f0; } /* punctuation */
+
+    /* ── Field table ── */
+    .field-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 0.875rem;
+      margin-bottom: 8px;
+    }
+
+    .field-table th {
+      text-align: left;
+      font-size: 0.7rem;
+      font-weight: 700;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: var(--muted);
+      padding: 6px 12px;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .field-table td {
+      padding: 8px 12px;
+      border-bottom: 1px solid rgba(55, 65, 81, 0.5);
+      vertical-align: top;
+    }
+
+    .field-table tr:last-child td { border-bottom: none; }
+
+    .field-table .fname {
+      font-family: var(--mono);
+      font-size: 0.8rem;
+      color: #93c5fd;
+      white-space: nowrap;
+    }
+
+    .field-table .ftype {
+      font-family: var(--mono);
+      font-size: 0.78rem;
+      color: #fdba74;
+      white-space: nowrap;
+    }
+
+    .field-table .fdesc { color: var(--muted); }
+
+    .field-table tr:hover td { background: rgba(31, 41, 55, 0.4); }
+
+    /* ── Note callout ── */
+    .note {
+      background: color-mix(in srgb, #f97316 8%, var(--surface));
+      border: 1px solid color-mix(in srgb, #f97316 30%, transparent);
+      border-radius: var(--radius);
+      padding: 12px 16px;
+      font-size: 0.875rem;
+      color: var(--muted);
+      margin-bottom: 16px;
+    }
+    .note strong { color: var(--text); }
+
+    /* ── Shared fields box ── */
+    .shared-fields {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 16px 20px;
+      margin-bottom: 48px;
+    }
+    .shared-fields h3 {
+      font-size: 0.8rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      color: var(--muted);
+      margin-bottom: 12px;
+    }
+
+    /* ── Platform tags ── */
+    .platform-tag {
+      display: inline-block;
+      font-size: 0.7rem;
+      font-weight: 600;
+      padding: 2px 7px;
+      border-radius: 99px;
+      margin-left: 6px;
+      vertical-align: middle;
+    }
+    .pt-twitch  { background: rgba(145, 70, 255, 0.2); color: #c084fc; border: 1px solid rgba(145,70,255,0.3); }
+    .pt-youtube { background: rgba(239, 68, 68, 0.2);  color: #fca5a5; border: 1px solid rgba(239,68,68,0.3); }
+    .pt-fb      { background: rgba(59, 130, 246, 0.2); color: #93c5fd; border: 1px solid rgba(59,130,246,0.3); }
+    .pt-all     { background: rgba(107, 114, 128, 0.2);color: #d1d5db; border: 1px solid rgba(107,114,128,0.3); }
+  </style>
+</head>
+<body>
+
+  <nav>
+    <a href="index.html">Home</a>
+    <span class="sep">›</span>
+    <span class="current">Event Reference</span>
+  </nav>
+
+  <div class="page">
+
+    <!-- ── Sidebar ── -->
+    <aside class="sidebar">
+      <div class="group">
+        <h3>Overview</h3>
+        <ul>
+          <li><a href="#shared">Shared fields</a></li>
+          <li><a href="#chat">Chat messages</a></li>
+        </ul>
+      </div>
+      <div class="group">
+        <h3>Event types</h3>
+        <ul>
+          <li><a href="#follow">follow</a></li>
+          <li><a href="#subscription">subscription</a></li>
+          <li><a href="#donation">donation</a></li>
+          <li><a href="#bits">bits</a></li>
+          <li><a href="#raid">raid</a></li>
+          <li><a href="#host">host</a></li>
+          <li><a href="#superchat">superchat</a></li>
+          <li><a href="#merch">merch</a></li>
+          <li><a href="#facebook">Facebook</a></li>
+          <li><a href="#charity">Charity</a></li>
+        </ul>
+      </div>
+      <div class="group">
+        <h3>Testing</h3>
+        <ul>
+          <li><a href="#fake-events">Fake events</a></li>
+        </ul>
+      </div>
+    </aside>
+
+    <!-- ── Main ── -->
+    <main class="content">
+
+      <h1>Event Reference</h1>
+      <p class="intro">Every event Streamlabs fires through the Custom Widget, with field names, types, and copy-paste fake dispatches for local testing.</p>
+
+      <!-- Listening pattern -->
+      <pre><button class="copy-btn">copy</button><span class="c">// All events arrive through onEventReceived. Filter on type first.</span>
+document.addEventListener(<span class="s">'onEventReceived'</span>, (<span class="p">obj</span>) => {
+  <span class="k">const</span> d = obj.detail;
+  <span class="k">if</span> (d.type === <span class="s">'donation'</span>) { <span class="c">/* ... */</span> }
+});</pre>
+
+      <!-- Shared fields -->
+      <div class="shared-fields" id="shared">
+        <h3>Fields present on every event</h3>
+        <table class="field-table">
+          <thead><tr><th>Field</th><th>Type</th><th>Notes</th></tr></thead>
+          <tbody>
+            <tr><td class="fname">type</td><td class="ftype">string</td><td class="fdesc">Event identifier — see sections below</td></tr>
+            <tr><td class="fname">name</td><td class="ftype">string</td><td class="fdesc">Display name of the user who triggered the event</td></tr>
+            <tr><td class="fname">from</td><td class="ftype">string</td><td class="fdesc">Same as <code>name</code></td></tr>
+            <tr><td class="fname">isTest</td><td class="ftype">boolean</td><td class="fdesc"><code>true</code> when fired from the Streamlabs test button</td></tr>
+            <tr><td class="fname">platform</td><td class="ftype">string</td><td class="fdesc"><code>'twitch_account'</code> | <code>'youtube_account'</code> | <code>'facebook_account'</code> | …</td></tr>
+            <tr><td class="fname">createdAt</td><td class="ftype">string</td><td class="fdesc">ISO datetime e.g. <code>'2026-05-20 14:32:00'</code></td></tr>
+            <tr><td class="fname">createdAtTimestamp</td><td class="ftype">number</td><td class="fdesc">Unix timestamp in milliseconds</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <!-- ── follow ── -->
+      <div class="event-section" id="follow">
+        <div class="event-header">
+          <span class="event-icon">🫶</span>
+          <span class="event-title">follow</span>
+          <span class="platform-tag pt-twitch">Twitch</span>
+          <span class="platform-tag pt-youtube">YouTube</span>
+          <span class="platform-tag pt-fb">Facebook</span>
+        </div>
+        <p class="event-desc">A new follower on any platform.</p>
+        <table class="field-table">
+          <thead><tr><th>Field</th><th>Type</th><th>Notes</th></tr></thead>
+          <tbody>
+            <tr><td class="fname">name</td><td class="ftype">string</td><td class="fdesc">Follower's display name</td></tr>
+          </tbody>
+        </table>
+        <pre><button class="copy-btn">copy</button>document.dispatchEvent(<span class="k">new</span> CustomEvent(<span class="s">'onEventReceived'</span>, { detail: {
+  type: <span class="s">'follow'</span>, name: <span class="s">'TestUser'</span>, from: <span class="s">'TestUser'</span>, isTest: <span class="b">true</span>,
+}}));</pre>
+      </div>
+
+      <!-- ── subscription ── -->
+      <div class="event-section" id="subscription">
+        <div class="event-header">
+          <span class="event-icon">⭐</span>
+          <span class="event-title">subscription</span>
+          <span class="platform-tag pt-twitch">Twitch</span>
+          <span class="platform-tag pt-youtube">YouTube</span>
+        </div>
+        <p class="event-desc">New sub, resub, and gifted subs all share <code>type: 'subscription'</code>. Use <code>gifted</code> and <code>months</code> to distinguish them.</p>
+        <table class="field-table">
+          <thead><tr><th>Field</th><th>Type</th><th>Notes</th></tr></thead>
+          <tbody>
+            <tr><td class="fname">name</td><td class="ftype">string</td><td class="fdesc">Subscriber's name (or gift recipient's name)</td></tr>
+            <tr><td class="fname">months</td><td class="ftype">number</td><td class="fdesc">Cumulative months subscribed. <code>1</code> for a new sub</td></tr>
+            <tr><td class="fname">message</td><td class="ftype">string</td><td class="fdesc">Share message — may be empty</td></tr>
+            <tr><td class="fname">gifted</td><td class="ftype">boolean</td><td class="fdesc"><code>true</code> if this sub was a gift</td></tr>
+            <tr><td class="fname">gifter</td><td class="ftype">string</td><td class="fdesc">Name of the person who sent the gift — only present when <code>gifted: true</code></td></tr>
+            <tr><td class="fname">amount</td><td class="ftype">number</td><td class="fdesc">On gift bombs: number of subs gifted in one go</td></tr>
+          </tbody>
+        </table>
+
+        <div class="subtype">New sub</div>
+        <pre><button class="copy-btn">copy</button>document.dispatchEvent(<span class="k">new</span> CustomEvent(<span class="s">'onEventReceived'</span>, { detail: {
+  type: <span class="s">'subscription'</span>, name: <span class="s">'TestUser'</span>, from: <span class="s">'TestUser'</span>,
+  months: <span class="n">1</span>, message: <span class="s">''</span>, gifted: <span class="b">false</span>, isTest: <span class="b">true</span>,
+}}));</pre>
+
+        <div class="subtype">Resub</div>
+        <pre><button class="copy-btn">copy</button>document.dispatchEvent(<span class="k">new</span> CustomEvent(<span class="s">'onEventReceived'</span>, { detail: {
+  type: <span class="s">'subscription'</span>, name: <span class="s">'TestUser'</span>, from: <span class="s">'TestUser'</span>,
+  months: <span class="n">14</span>, message: <span class="s">'Love this stream!'</span>, gifted: <span class="b">false</span>, isTest: <span class="b">true</span>,
+}}));</pre>
+
+        <div class="subtype">Gifted sub</div>
+        <pre><button class="copy-btn">copy</button>document.dispatchEvent(<span class="k">new</span> CustomEvent(<span class="s">'onEventReceived'</span>, { detail: {
+  type: <span class="s">'subscription'</span>, name: <span class="s">'Recipient'</span>, from: <span class="s">'Recipient'</span>,
+  gifter: <span class="s">'TestUser'</span>, months: <span class="n">1</span>, gifted: <span class="b">true</span>, isTest: <span class="b">true</span>,
+}}));</pre>
+      </div>
+
+      <!-- ── donation ── -->
+      <div class="event-section" id="donation">
+        <div class="event-header">
+          <span class="event-icon">💰</span>
+          <span class="event-title">donation</span>
+          <span class="platform-tag pt-all">All platforms</span>
+        </div>
+        <p class="event-desc">Streamlabs tip / donation. Also used by charity integrations — check <code>platform</code> to distinguish the source.</p>
+        <div class="note"><strong>Heads up:</strong> <code>amount</code> may be <code>0</code> on real donations due to a known Streamlabs bug. Always use <code>formattedAmount</code> for display, and <code>amount</code> only for numeric comparisons where you've verified it works.</div>
+        <table class="field-table">
+          <thead><tr><th>Field</th><th>Type</th><th>Notes</th></tr></thead>
+          <tbody>
+            <tr><td class="fname">name</td><td class="ftype">string</td><td class="fdesc">Donor's name</td></tr>
+            <tr><td class="fname">amount</td><td class="ftype">number</td><td class="fdesc">Raw numeric value — may be 0 on real events (see note)</td></tr>
+            <tr><td class="fname">formattedAmount</td><td class="ftype">string</td><td class="fdesc">Currency-formatted string e.g. <code>'$25.00'</code> — use this for display</td></tr>
+            <tr><td class="fname">currency</td><td class="ftype">string</td><td class="fdesc">ISO currency code e.g. <code>'USD'</code></td></tr>
+            <tr><td class="fname">message</td><td class="ftype">string</td><td class="fdesc">Donor's message — may be empty</td></tr>
+          </tbody>
+        </table>
+        <pre><button class="copy-btn">copy</button>document.dispatchEvent(<span class="k">new</span> CustomEvent(<span class="s">'onEventReceived'</span>, { detail: {
+  type: <span class="s">'donation'</span>, name: <span class="s">'TestUser'</span>, from: <span class="s">'TestUser'</span>,
+  amount: <span class="n">25</span>, formattedAmount: <span class="s">'$25.00'</span>, currency: <span class="s">'USD'</span>,
+  message: <span class="s">'Great stream!'</span>, isTest: <span class="b">true</span>,
+}}));</pre>
+      </div>
+
+      <!-- ── bits ── -->
+      <div class="event-section" id="bits">
+        <div class="event-header">
+          <span class="event-icon">💎</span>
+          <span class="event-title">bits</span>
+          <span class="platform-tag pt-twitch">Twitch</span>
+        </div>
+        <p class="event-desc">Twitch Bits / Cheers.</p>
+        <table class="field-table">
+          <thead><tr><th>Field</th><th>Type</th><th>Notes</th></tr></thead>
+          <tbody>
+            <tr><td class="fname">name</td><td class="ftype">string</td><td class="fdesc">Cheerer's name</td></tr>
+            <tr><td class="fname">amount</td><td class="ftype">number</td><td class="fdesc">Number of bits cheered</td></tr>
+            <tr><td class="fname">message</td><td class="ftype">string</td><td class="fdesc">Cheer message — typically includes the cheer emote e.g. <code>'cheer500 PogChamp'</code></td></tr>
+          </tbody>
+        </table>
+        <pre><button class="copy-btn">copy</button>document.dispatchEvent(<span class="k">new</span> CustomEvent(<span class="s">'onEventReceived'</span>, { detail: {
+  type: <span class="s">'bits'</span>, name: <span class="s">'TestUser'</span>, from: <span class="s">'TestUser'</span>,
+  amount: <span class="n">500</span>, message: <span class="s">'cheer500 PogChamp'</span>, isTest: <span class="b">true</span>,
+}}));</pre>
+      </div>
+
+      <!-- ── raid ── -->
+      <div class="event-section" id="raid">
+        <div class="event-header">
+          <span class="event-icon">⚔️</span>
+          <span class="event-title">raid</span>
+          <span class="platform-tag pt-twitch">Twitch</span>
+        </div>
+        <table class="field-table">
+          <thead><tr><th>Field</th><th>Type</th><th>Notes</th></tr></thead>
+          <tbody>
+            <tr><td class="fname">name</td><td class="ftype">string</td><td class="fdesc">Raiding streamer's name</td></tr>
+            <tr><td class="fname">raiders</td><td class="ftype">number</td><td class="fdesc">Number of viewers in the raid</td></tr>
+          </tbody>
+        </table>
+        <pre><button class="copy-btn">copy</button>document.dispatchEvent(<span class="k">new</span> CustomEvent(<span class="s">'onEventReceived'</span>, { detail: {
+  type: <span class="s">'raid'</span>, name: <span class="s">'TestUser'</span>, from: <span class="s">'TestUser'</span>,
+  raiders: <span class="n">250</span>, isTest: <span class="b">true</span>,
+}}));</pre>
+      </div>
+
+      <!-- ── host ── -->
+      <div class="event-section" id="host">
+        <div class="event-header">
+          <span class="event-icon">📡</span>
+          <span class="event-title">host</span>
+          <span class="platform-tag pt-twitch">Twitch</span>
+        </div>
+        <table class="field-table">
+          <thead><tr><th>Field</th><th>Type</th><th>Notes</th></tr></thead>
+          <tbody>
+            <tr><td class="fname">name</td><td class="ftype">string</td><td class="fdesc">Hosting streamer's name</td></tr>
+            <tr><td class="fname">viewers</td><td class="ftype">number</td><td class="fdesc">Number of viewers</td></tr>
+            <tr><td class="fname">host_type</td><td class="ftype">string</td><td class="fdesc"><code>'auto'</code> | <code>'manual'</code> | <code>''</code></td></tr>
+          </tbody>
+        </table>
+        <pre><button class="copy-btn">copy</button>document.dispatchEvent(<span class="k">new</span> CustomEvent(<span class="s">'onEventReceived'</span>, { detail: {
+  type: <span class="s">'host'</span>, name: <span class="s">'TestUser'</span>, from: <span class="s">'TestUser'</span>,
+  viewers: <span class="n">120</span>, host_type: <span class="s">'manual'</span>, isTest: <span class="b">true</span>,
+}}));</pre>
+      </div>
+
+      <!-- ── superchat ── -->
+      <div class="event-section" id="superchat">
+        <div class="event-header">
+          <span class="event-icon">💬</span>
+          <span class="event-title">superchat</span>
+          <span class="platform-tag pt-youtube">YouTube</span>
+        </div>
+        <p class="event-desc">YouTube Super Chat.</p>
+        <table class="field-table">
+          <thead><tr><th>Field</th><th>Type</th><th>Notes</th></tr></thead>
+          <tbody>
+            <tr><td class="fname">name</td><td class="ftype">string</td><td class="fdesc">Sender's name</td></tr>
+            <tr><td class="fname">amount</td><td class="ftype">number</td><td class="fdesc">Raw internal units (YouTube-specific, very large number)</td></tr>
+            <tr><td class="fname">displayString</td><td class="ftype">string</td><td class="fdesc">Short formatted amount e.g. <code>'$25'</code></td></tr>
+            <tr><td class="fname">formattedAmount</td><td class="ftype">string</td><td class="fdesc">Full formatted amount e.g. <code>'$25.00'</code></td></tr>
+            <tr><td class="fname">currency</td><td class="ftype">string</td><td class="fdesc">ISO currency code</td></tr>
+            <tr><td class="fname">message</td><td class="ftype">string</td><td class="fdesc">Super chat message</td></tr>
+          </tbody>
+        </table>
+        <pre><button class="copy-btn">copy</button>document.dispatchEvent(<span class="k">new</span> CustomEvent(<span class="s">'onEventReceived'</span>, { detail: {
+  type: <span class="s">'superchat'</span>, name: <span class="s">'TestUser'</span>, from: <span class="s">'TestUser'</span>,
+  amount: <span class="n">25000000</span>, displayString: <span class="s">'$25'</span>, formattedAmount: <span class="s">'$25.00'</span>,
+  currency: <span class="s">'USD'</span>, message: <span class="s">'Great stream!'</span>, isTest: <span class="b">true</span>,
+}}));</pre>
+      </div>
+
+      <!-- ── merch ── -->
+      <div class="event-section" id="merch">
+        <div class="event-header">
+          <span class="event-icon">🛍️</span>
+          <span class="event-title">merch</span>
+          <span class="platform-tag pt-all">Streamlabs</span>
+        </div>
+        <table class="field-table">
+          <thead><tr><th>Field</th><th>Type</th><th>Notes</th></tr></thead>
+          <tbody>
+            <tr><td class="fname">name</td><td class="ftype">string</td><td class="fdesc">Buyer's name</td></tr>
+            <tr><td class="fname">message</td><td class="ftype">string</td><td class="fdesc">Optional message</td></tr>
+            <tr><td class="fname">product</td><td class="ftype">string</td><td class="fdesc">Product name</td></tr>
+          </tbody>
+        </table>
+        <pre><button class="copy-btn">copy</button>document.dispatchEvent(<span class="k">new</span> CustomEvent(<span class="s">'onEventReceived'</span>, { detail: {
+  type: <span class="s">'merch'</span>, name: <span class="s">'TestUser'</span>, from: <span class="s">'TestUser'</span>,
+  product: <span class="s">'T-Shirt'</span>, message: <span class="s">'Love the merch!'</span>, isTest: <span class="b">true</span>,
+}}));</pre>
+      </div>
+
+      <!-- ── Facebook ── -->
+      <div class="event-section" id="facebook">
+        <div class="event-header">
+          <span class="event-icon">👤</span>
+          <span class="event-title">Facebook events</span>
+          <span class="platform-tag pt-fb">Facebook</span>
+        </div>
+        <table class="field-table">
+          <thead><tr><th>type</th><th>Extra fields</th><th>Notes</th></tr></thead>
+          <tbody>
+            <tr><td class="fname">follow</td><td class="fdesc">—</td><td class="fdesc">New page follower</td></tr>
+            <tr><td class="fname">like</td><td class="fdesc">—</td><td class="fdesc">Page like</td></tr>
+            <tr><td class="fname">share</td><td class="fdesc">—</td><td class="fdesc">Stream share</td></tr>
+            <tr><td class="fname">stars</td><td class="ftype"><code>amount</code> number</td><td class="fdesc">Facebook Stars (equivalent to Bits)</td></tr>
+            <tr><td class="fname">support</td><td class="ftype"><code>months</code> number</td><td class="fdesc">Facebook fan subscription</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <!-- ── Charity ── -->
+      <div class="event-section" id="charity">
+        <div class="event-header">
+          <span class="event-icon">🤝</span>
+          <span class="event-title">Charity platforms</span>
+          <span class="platform-tag pt-all">Various</span>
+        </div>
+        <p class="event-desc">Tiltify, Donordrive, ExtraLife, Justgiving, and Twitch Charity all fire a <code>donation</code>-shaped event. Check <code>platform</code> to identify the source.</p>
+        <table class="field-table">
+          <thead><tr><th>platform value</th><th>Source</th></tr></thead>
+          <tbody>
+            <tr><td class="fname">'tiltify'</td><td class="fdesc">Tiltify</td></tr>
+            <tr><td class="fname">'donordrive'</td><td class="fdesc">Donordrive</td></tr>
+            <tr><td class="fname">'extra_life'</td><td class="fdesc">ExtraLife</td></tr>
+            <tr><td class="fname">'justgiving'</td><td class="fdesc">Justgiving</td></tr>
+            <tr><td class="fname">'twitch_charity'</td><td class="fdesc">Twitch Charity</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <!-- ── Chat messages ── -->
+      <div class="event-section" id="chat">
+        <div class="event-header">
+          <span class="event-icon">💬</span>
+          <span class="event-title">Chat messages</span>
+          <span class="platform-tag pt-twitch">Twitch</span>
+        </div>
+        <p class="event-desc">Twitch chat messages arrive through <code>onEventReceived</code> with <code>command: 'PRIVMSG'</code> and <code>type: 'chatmessage'</code>. Always filter on both.</p>
+        <table class="field-table">
+          <thead><tr><th>Field</th><th>Type</th><th>Notes</th></tr></thead>
+          <tbody>
+            <tr><td class="fname">from</td><td class="ftype">string</td><td class="fdesc">Lowercase username e.g. <code>'neferent'</code></td></tr>
+            <tr><td class="fname">body</td><td class="ftype">string</td><td class="fdesc">Message text</td></tr>
+            <tr><td class="fname">owner</td><td class="ftype">boolean</td><td class="fdesc"><code>true</code> if the sender is the channel owner / broadcaster</td></tr>
+            <tr><td class="fname">subscriber</td><td class="ftype">boolean</td><td class="fdesc"><code>true</code> if sender is a subscriber</td></tr>
+            <tr><td class="fname">userType</td><td class="ftype">string</td><td class="fdesc"><code>'user'</code> | <code>'mod'</code> | <code>'vip'</code></td></tr>
+            <tr><td class="fname">tags['mod']</td><td class="ftype">string</td><td class="fdesc"><code>'1'</code> if moderator, <code>'0'</code> if not — a string, not a boolean</td></tr>
+            <tr><td class="fname">tags['display-name']</td><td class="ftype">string</td><td class="fdesc">Display name with original capitalisation</td></tr>
+            <tr><td class="fname">tags['color']</td><td class="ftype">string</td><td class="fdesc">User's chat colour — empty string if unset</td></tr>
+            <tr><td class="fname">messageId</td><td class="ftype">string</td><td class="fdesc">Unique message ID</td></tr>
+          </tbody>
+        </table>
+        <pre><button class="copy-btn">copy</button><span class="c">// Standard pattern for chat command handling</span>
+document.addEventListener(<span class="s">'onEventReceived'</span>, (<span class="p">obj</span>) => {
+  <span class="k">const</span> d = obj.detail;
+  <span class="k">if</span> (d.command !== <span class="s">'PRIVMSG'</span> || d.type !== <span class="s">'chatmessage'</span>) <span class="k">return</span>;
+
+  <span class="k">const</span> sender  = (d.from || <span class="s">''</span>).toLowerCase();
+  <span class="k">const</span> message = (d.body || <span class="s">''</span>).trim().toLowerCase();
+  <span class="k">const</span> isMod   = d.tags[<span class="s">'mod'</span>] === <span class="s">'1'</span>;
+  <span class="k">const</span> isOwner = d.owner === <span class="b">true</span>;
+});</pre>
+
+        <pre><button class="copy-btn">copy</button><span class="c">// Fake chat message for local testing</span>
+document.dispatchEvent(<span class="k">new</span> CustomEvent(<span class="s">'onEventReceived'</span>, { detail: {
+  type: <span class="s">'chatmessage'</span>, command: <span class="s">'PRIVMSG'</span>,
+  from: <span class="s">'testuser'</span>, body: <span class="s">'!death'</span>,
+  owner: <span class="b">false</span>, subscriber: <span class="b">false</span>, userType: <span class="s">'mod'</span>,
+  tags: { <span class="s">'display-name'</span>: <span class="s">'TestUser'</span>, <span class="s">'mod'</span>: <span class="s">'1'</span>, <span class="s">'color'</span>: <span class="s">'#FF0000'</span> },
+}}));</pre>
+      </div>
+
+      <!-- ── Fake events ── -->
+      <div class="event-section" id="fake-events">
+        <div class="event-header">
+          <span class="event-icon">🧪</span>
+          <span class="event-title">All fake events — copy block</span>
+        </div>
+        <p class="event-desc">Paste into the browser console while previewing in <a href="https://phcode.io/" target="_blank" rel="noopener">Phoenix Code</a> to simulate any event without going live.</p>
+        <pre><button class="copy-btn">copy</button><span class="c">// Follow</span>
+document.dispatchEvent(<span class="k">new</span> CustomEvent(<span class="s">'onEventReceived'</span>, { detail: { type: <span class="s">'follow'</span>, name: <span class="s">'TestUser'</span>, from: <span class="s">'TestUser'</span>, isTest: <span class="b">true</span> }}));
+
+<span class="c">// New sub</span>
+document.dispatchEvent(<span class="k">new</span> CustomEvent(<span class="s">'onEventReceived'</span>, { detail: { type: <span class="s">'subscription'</span>, name: <span class="s">'TestUser'</span>, from: <span class="s">'TestUser'</span>, months: <span class="n">1</span>, message: <span class="s">''</span>, gifted: <span class="b">false</span>, isTest: <span class="b">true</span> }}));
+
+<span class="c">// Resub</span>
+document.dispatchEvent(<span class="k">new</span> CustomEvent(<span class="s">'onEventReceived'</span>, { detail: { type: <span class="s">'subscription'</span>, name: <span class="s">'TestUser'</span>, from: <span class="s">'TestUser'</span>, months: <span class="n">14</span>, message: <span class="s">'Love this stream!'</span>, gifted: <span class="b">false</span>, isTest: <span class="b">true</span> }}));
+
+<span class="c">// Gifted sub</span>
+document.dispatchEvent(<span class="k">new</span> CustomEvent(<span class="s">'onEventReceived'</span>, { detail: { type: <span class="s">'subscription'</span>, name: <span class="s">'Recipient'</span>, from: <span class="s">'Recipient'</span>, gifter: <span class="s">'TestUser'</span>, months: <span class="n">1</span>, gifted: <span class="b">true</span>, isTest: <span class="b">true</span> }}));
+
+<span class="c">// Donation</span>
+document.dispatchEvent(<span class="k">new</span> CustomEvent(<span class="s">'onEventReceived'</span>, { detail: { type: <span class="s">'donation'</span>, name: <span class="s">'TestUser'</span>, from: <span class="s">'TestUser'</span>, amount: <span class="n">25</span>, formattedAmount: <span class="s">'$25.00'</span>, currency: <span class="s">'USD'</span>, message: <span class="s">'Great stream!'</span>, isTest: <span class="b">true</span> }}));
+
+<span class="c">// Bits</span>
+document.dispatchEvent(<span class="k">new</span> CustomEvent(<span class="s">'onEventReceived'</span>, { detail: { type: <span class="s">'bits'</span>, name: <span class="s">'TestUser'</span>, from: <span class="s">'TestUser'</span>, amount: <span class="n">500</span>, message: <span class="s">'cheer500 PogChamp'</span>, isTest: <span class="b">true</span> }}));
+
+<span class="c">// Raid</span>
+document.dispatchEvent(<span class="k">new</span> CustomEvent(<span class="s">'onEventReceived'</span>, { detail: { type: <span class="s">'raid'</span>, name: <span class="s">'TestUser'</span>, from: <span class="s">'TestUser'</span>, raiders: <span class="n">250</span>, isTest: <span class="b">true</span> }}));
+
+<span class="c">// Super Chat</span>
+document.dispatchEvent(<span class="k">new</span> CustomEvent(<span class="s">'onEventReceived'</span>, { detail: { type: <span class="s">'superchat'</span>, name: <span class="s">'TestUser'</span>, from: <span class="s">'TestUser'</span>, amount: <span class="n">25000000</span>, displayString: <span class="s">'$25'</span>, formattedAmount: <span class="s">'$25.00'</span>, currency: <span class="s">'USD'</span>, message: <span class="s">'Great stream!'</span>, isTest: <span class="b">true</span> }}));
+
+<span class="c">// Chat message</span>
+document.dispatchEvent(<span class="k">new</span> CustomEvent(<span class="s">'onEventReceived'</span>, { detail: { type: <span class="s">'chatmessage'</span>, command: <span class="s">'PRIVMSG'</span>, from: <span class="s">'testuser'</span>, body: <span class="s">'!death'</span>, owner: <span class="b">false</span>, subscriber: <span class="b">false</span>, userType: <span class="s">'mod'</span>, tags: { <span class="s">'display-name'</span>: <span class="s">'TestUser'</span>, <span class="s">'mod'</span>: <span class="s">'1'</span>, <span class="s">'color'</span>: <span class="s">'#FF0000'</span> } }}));</pre>
+      </div>
+
+    </main>
+  </div>
+
+  <script>
+    // Copy button behaviour
+    document.querySelectorAll('.copy-btn').forEach(btn => {
+      btn.addEventListener('click', () => {
+        const pre = btn.closest('pre');
+        const text = pre.innerText.replace(/^copy\n/, '');
+        navigator.clipboard.writeText(text).then(() => {
+          btn.textContent = 'copied!';
+          btn.classList.add('copied');
+          setTimeout(() => { btn.textContent = 'copy'; btn.classList.remove('copied'); }, 2000);
+        });
+      });
+    });
+  </script>
+
+</body>
+</html>

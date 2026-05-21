@@ -1,0 +1,75 @@
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  background: transparent;
+  overflow: hidden;
+  font-family: Arial, sans-serif;
+}
+
+#labels-bar {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  display: flex;
+  align-items: stretch;
+  background: rgba(15, 15, 25, 0.92);
+  border-top: 1px solid rgba(255, 255, 255, 0.08);
+  backdrop-filter: blur(8px);
+  height: 48px;
+  overflow: hidden;
+}
+
+.stat {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  padding: 0 18px;
+  flex: 1;
+  min-width: 0; /* allows text truncation inside flex children */
+}
+
+/* Divider between stat items */
+.stat + .stat {
+  border-left: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.stat-label {
+  font-size: 0.6rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: rgba(255, 255, 255, 0.4);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.stat-value {
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: #ffffff;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.stat-value.empty {
+  color: rgba(255, 255, 255, 0.25);
+}
+
+/* Flash animation when a value updates */
+@keyframes flash {
+  0%   { color: #f97316; }
+  100% { color: #ffffff; }
+}
+
+.stat-value.updated {
+  animation: flash 1.2s ease-out forwards;
+}
+
+/* Write custom CSS below. */
